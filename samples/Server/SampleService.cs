@@ -3,15 +3,30 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace Server
 {
 	public class SampleService : ISampleService
 	{
-		public string Ping(string s)
+        private IHttpContextAccessor _accessor;
+        public SampleService(IHttpContextAccessor accessor)
+        {
+            _accessor = accessor;
+        }
+
+        public string Ping(string s)
 		{
-			Console.WriteLine("Exec ping method");
-			return s;
+            try
+            {
+                Console.WriteLine(String.Format("Exec ping method with session-id {0}", _accessor.HttpContext.Session.Id));
+                return s;
+            }
+            catch(System.Exception ex)
+            {
+                Console.WriteLine(String.Format("{0}, Inner: {1}", ex.Message, ex.InnerException?.Message));
+                return ex.Message; 
+            }			
 		}
 
 		public ComplexModelResponse PingComplexModel(ComplexModelInput inputModel)
